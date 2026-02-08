@@ -1,0 +1,18 @@
+# This file tells Docker to run a PostgreSQL database
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine  # Use PostgreSQL 15
+    container_name: expense-tracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: expensetracker
+      POSTGRES_USER: Theaprince001            # Username
+      POSTGRES_PASSWORD: Theaprince001  # Password
+    ports:
+      - "5433:5432"  # Map port 5433 on your computer to Docker
+    volumes: [pgdata:/var/lib/postgresql/data]
+
+volumes: [pgdata:]
+
