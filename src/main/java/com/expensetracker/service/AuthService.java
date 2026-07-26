@@ -12,6 +12,7 @@ import com.expensetracker.repository.UserRepository;
 import com.expensetracker.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,6 +38,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JavaMailSender mailSender;
 
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
+
     @Transactional
     public Map<String, String> register(RegisterRequest request) {
 
@@ -60,7 +64,15 @@ public class AuthService {
         user.setActivationTokenExpiry(LocalDateTime.now().plusHours(24));
 
         userRepository.save(user);
-        sendActivationEmail(user);
+
+        // Don't let email failures block registration.
+        // Render's free tier blocks outbound SMTP, so this may fail there —
+        // that's expected and shouldn't prevent the account from being created.
+        try {
+            sendActivationEmail(user);
+        } catch (Exception e) {
+            log.error("Failed to send activation email to {}: {}", user.getEmail(), e.getMessage());
+        }
 
         return Map.of(
                 "message", "Registration successful. Check email to activate account",
@@ -69,7 +81,7 @@ public class AuthService {
     }
 
     private void sendActivationEmail(User user) {
-        String activationUrl = "http://localhost:8080/api/auth/activate?token=" + user.getActivationToken();
+        String activationUrl = baseUrl + "/api/auth/activate?token=" + user.getActivationToken();
 
         String subject = "Activate Your Expense Tracker Account";
         String body = """
@@ -158,9 +170,13 @@ public class AuthService {
         user.setActivationToken(UUID.randomUUID().toString());
         user.setActivationTokenExpiry(LocalDateTime.now().plusHours(24));
 
-        sendActivationEmail(user);
+        try {
+            sendActivationEmail(user);
+        } catch (Exception e) {
+            log.error("Failed to resend activation email to {}: {}", user.getEmail(), e.getMessage());
+        }
+
         return Map.of("message", "Activation email resent");
     }
 
 }
-
