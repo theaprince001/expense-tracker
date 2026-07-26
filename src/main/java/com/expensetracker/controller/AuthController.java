@@ -6,6 +6,7 @@ import com.expensetracker.dto.RegisterRequest;
 import com.expensetracker.security.JwtService;
 import com.expensetracker.security.TokenBlacklistService;
 import com.expensetracker.service.AuthService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +30,14 @@ public class AuthController {
     private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/register")
+    @SecurityRequirements
     public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequest request) {
         Map<String, String> response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
+    @SecurityRequirements
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
@@ -51,11 +54,14 @@ public class AuthController {
     }
 
     @GetMapping("/activate")
+    @SecurityRequirements
     public ResponseEntity<Map<String, String>> activate(@RequestParam String token) {
         Map<String, String> response = authService.activateAccount(token);
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/resend-activation")
+    @SecurityRequirements
     public ResponseEntity<Map<String, String>> resendActivation(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         log.info("Resend activation request for email: {}", email);
