@@ -35,4 +35,4 @@ USER spring
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Xmx350m", "-Xss512k", "-XX:MaxMetaspaceSize=100m", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx280m", "-Xss256k", "-XX:MaxMetaspaceSize=180m", "-XX:ReservedCodeCacheSize=32m", "-XX:+UseSerialGC", "-jar", "app.jar"]
