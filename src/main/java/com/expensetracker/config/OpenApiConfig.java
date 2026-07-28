@@ -44,13 +44,13 @@ import org.springframework.context.annotation.Configuration;
         ),
         servers = {
                 @Server(
-                        url = "http://localhost:8080",
-                        description = "Local Development Server"
-                ),
-                @Server(
                         url = "https://expense-tracker-iz6d.onrender.com",
                         description = "Production Server (Render)"
                 ),
+                @Server(
+                        url = "http://localhost:8080",
+                        description = "Local Development Server"
+                )
         },
         security = {
                 @SecurityRequirement(name = "bearerAuth")
