@@ -13,8 +13,6 @@ import com.expensetracker.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,7 +34,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final JavaMailSender mailSender;
+    private final ResendEmailService emailService;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
@@ -66,8 +64,6 @@ public class AuthService {
         userRepository.save(user);
 
         // Don't let email failures block registration.
-        // Render's free tier blocks outbound SMTP, so this may fail there —
-        // that's expected and shouldn't prevent the account from being created.
         try {
             sendActivationEmail(user);
         } catch (Exception e) {
@@ -97,13 +93,7 @@ public class AuthService {
             Expense Tracker
             """.formatted(user.getFirstName(), activationUrl);
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("Expense Tracker <noreply@expensetracker.com>");
-        message.setTo(user.getEmail());
-        message.setSubject(subject);
-        message.setText(body);
-
-        mailSender.send(message);
+        emailService.sendEmail(user.getEmail(), subject, body);
     }
 
 
