@@ -48,9 +48,9 @@ import org.springframework.context.annotation.Configuration;
                         description = "Local Development Server"
                 ),
                 @Server(
-                        url = "https://api.expensetracker.com",
-                        description = "Production Server"
-                )
+                        url = "https://expense-tracker-iz6d.onrender.com",
+                        description = "Production Server (Render)"
+                ),
         },
         security = {
                 @SecurityRequirement(name = "bearerAuth")
